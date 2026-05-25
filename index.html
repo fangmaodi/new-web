@@ -2,36 +2,57 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>我 的私人存储空间</title>
+    <title>我的私人仓库</title>
     <style>
         body { font-family: sans-serif; background: #f0f2f5; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { font-size: 20px; text-align: center; color: #333; }
         #file-list { list-style: none; padding: 0; }
-        li { padding: 10px; border-bottom: 1px solid #eee; }
-        a { text-decoration: none; color: #007bff; }
+        .file-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; }
+        
+        /* 下载按钮样式 */
+        .btn-download {
+            background-color: #007bff;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .btn-download:hover { background-color: #0056b3; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📂 我的私人仓库</h1>
-        <ul id="file-list">加载中...</ul>
+        <h1>📁 我的私人网盘</h1>
+        <ul id="file-list"><li>正在从仓库读取文件...</li></ul>
     </div>
 
     <script>
-        // 自动获取 GitHub 仓库内容 (请把 username/repo 改为你自己的)
+        // --- 请务必修改这里 ---
         const repo = "fangmaodi/new-web"; 
+        // ---------------------
+
         fetch(`https://api.github.com/repos/${repo}/contents/`)
             .then(res => res.json())
             .then(data => {
                 const list = document.getElementById('file-list');
                 list.innerHTML = '';
                 data.forEach(file => {
-                    if(file.name !== 'index.html' && file.name !== '.nojekyll') {
+                    // 过滤掉 index.html 和其他系统文件
+                    if(file.name !== 'index.html' && file.name !== '.nojekyll' && file.name !== 'README.md') {
                         let li = document.createElement('li');
-                        li.innerHTML = `📄 <a href="${file.path}">${file.name}</a>`;
+                        li.className = 'file-item';
+                        li.innerHTML = `
+                            <span>📄 ${file.name}</span>
+                            <a href="${file.download_url}" class="btn-download" download>下载</a>
+                        `;
                         list.appendChild(li);
                     }
                 });
+            })
+            .catch(err => {
+                document.getElementById('file-list').innerHTML = '<li>加载失败，请检查仓库路径是否正确。</li>';
             });
     </script>
 </body>
